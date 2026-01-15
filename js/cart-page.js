@@ -273,7 +273,7 @@ class CartPageManager {
       confirmBtn.disabled = true;
       confirmBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Updating...';
 
-      const response = await this.apiFetch('PUT', '/cart', {
+      const response = await this.apiFetch('PUT', `/cart/items/${productId}`, {
         body: JSON.stringify({
           productId: productId,
           weightGrams: newWeight
@@ -317,7 +317,7 @@ class CartPageManager {
     }
 
     try {
-      const response = await this.apiFetch('DELETE', `/cart/${productId}`);
+      const response = await this.apiFetch('DELETE', `/cart/items/${productId}`);
 
       if (!response.ok) throw new Error('Failed to remove item');
 

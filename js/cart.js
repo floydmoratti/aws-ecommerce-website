@@ -96,7 +96,7 @@ class CartManager {
     button.disabled = true;
     button.innerHTML = '<i class="bi bi-hourglass-split me-1"></i> Adding...';
 
-    const response = await this.apiFetch('POST', '/cart/add', {
+    const response = await this.apiFetch('POST', '/cart/items', {
         body: JSON.stringify({ productId, weightGrams })
       });
 

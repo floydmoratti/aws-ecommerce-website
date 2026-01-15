@@ -7,12 +7,12 @@
       this.basePath = basePath;
 
       this.routes = [
-        { method: 'GET',    path: '/cart',        file: 'cart.json' },
-        { method: 'POST',   path: '/cart/add',    file: 'cart-add.json' },
-        { method: 'PUT',    path: '/cart',        file: 'cart-update.json' },
-        { method: 'DELETE', path: '/cart/:id',    file: 'cart-delete.json' },
-        { method: 'DELETE', path: '/cart',        file: 'cart-clear.json' },
-        { method: 'GET',    path: '/products',    file: 'products.json' }
+        { method: 'GET',    path: '/cart',            file: 'cart.json' },
+        { method: 'POST',   path: '/cart/items',      file: 'cart-add.json' },
+        { method: 'PUT',    path: '/cart/items/:id',  file: 'cart-update.json' },
+        { method: 'DELETE', path: '/cart/items/:id',  file: 'cart-delete.json' },
+        { method: 'DELETE', path: '/cart',            file: 'cart-clear.json' },
+        { method: 'GET',    path: '/products',        file: 'products.json' }
       ];
     }
 
