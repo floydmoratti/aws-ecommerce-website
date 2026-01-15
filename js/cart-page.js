@@ -5,73 +5,66 @@ class CartPageManager {
     this.cart = null;
     this.currentEditingProduct = null;
     this.updateModal = null;
-    this.config = window.API_CONFIG || { USE_MOCK_API: false, REAL_API_BASE: '/api', MOCK_API_BASE: '/mock' };
+
+    this.config = window.API_CONFIG;
+    this.mockRouter = this.config.USE_MOCK_API
+      ? new window.MockRouter(this.config.MOCK_API_BASE)
+      : null;
   }
 
-  // Get the appropriate API URL
-  getApiUrl(endpoint) {
+  // ----------------------
+  // API Fetch Function
+  // ----------------------
+
+  async apiFetch(method, endpoint, options = {}) {
+    let url;
+
+    // Mock
     if (this.config.USE_MOCK_API) {
-      // Map endpoints to mock files
-      const mockEndpoints = {
-        '/cart': '/cart.json'
-      };
-      
-      // Handle parameterized endpoints
-      if (endpoint.startsWith('/cart/') && endpoint !== '/cart/add') {
-        return `${this.config.MOCK_API_BASE}/cart-delete.json`;
-      }
-      
-      const mockFile = mockEndpoints[endpoint] || `${endpoint}.json`;
-      return `${this.config.MOCK_API_BASE}${mockFile}`;
-    }
-    return `${this.config.REAL_API_BASE}${endpoint}`;
-  }
+      url = this.mockRouter.resolve(method, endpoint);
 
-  // Mock API fetch wrapper
-  async mockFetch(url, options = {}) {
-    if (!this.config.USE_MOCK_API) {
-      // Use real fetch for real API
-      return fetch(url, options);
-    }
+      await new Promise(r => setTimeout(r, 300));
 
-    // Simulate network delay for mock API
-    await new Promise(resolve => setTimeout(resolve, 300));
+      try {
+        const response = await fetch(url);
 
-    try {
-      // Determine which mock file to use based on method and endpoint
-      let mockUrl = url;
-      
-      if (options.method === 'PUT') {
-        mockUrl = `${this.config.MOCK_API_BASE}/cart-update.json`;
-      } else if (options.method === 'DELETE') {
-        if (url.includes('/cart/') && url !== `${this.config.MOCK_API_BASE}/cart`) {
-          mockUrl = `${this.config.MOCK_API_BASE}/cart-delete.json`;
-        } else {
-          mockUrl = `${this.config.MOCK_API_BASE}/cart-clear.json`;
-        }
-      }
+        if (!response.ok) throw new Error(`Mock API error: ${response.status}`);
+        
+        const data = await response.json();
 
-      const response = await fetch(mockUrl);
-      if (!response.ok) {
-        throw new Error(`Mock API error: ${response.status}`);
-      }
-      const data = await response.json();
-      
-      // Return a mock Response object
-      return {
+        return {
         ok: true,
         status: 200,
         json: async () => data,
         text: async () => JSON.stringify(data)
-      };
-    } catch (error) {
-      console.error('Mock API fetch error:', error);
-      throw error;
+        };
+      } catch (error) {
+        console.error('Mock API fetch error:', error);
+        throw error;
+      }
     }
+
+    // Real
+    url = `${this.config.REAL_API_BASE}${endpoint}`;
+
+    return fetch(url, {
+      method,
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(options.headers || {})
+      },
+      body: options.body
+    });
   }
 
-  // Initialize the cart page
+
+  // ----------------------
+  // Initialize Page
+  // ----------------------
+
   async init() {
+
     // Initialize Bootstrap modal
     const modalElement = document.getElementById('updateWeightModal');
     this.updateModal = new bootstrap.Modal(modalElement);
@@ -86,8 +79,8 @@ class CartPageManager {
     console.log(`Cart Page initialized in ${this.config.USE_MOCK_API ? 'MOCK' : 'REAL'} API mode`);
   }
 
-  // Setup all event listeners
   setupEventListeners() {
+
     // Clear cart button
     const clearBtn = document.getElementById('clearCartBtn');
     if (clearBtn) {
@@ -113,23 +106,18 @@ class CartPageManager {
     }
   }
 
-  // Load cart from API
+
+  // ----------------------
+  // Load Cart Function
+  // ----------------------
+  
   async loadCart() {
     try {
       this.showLoading();
 
-      const url = this.getApiUrl('/cart');
-      const response = await this.mockFetch(url, {
-        method: 'GET',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
+      const response = await this.apiFetch('GET', '/cart');
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch cart');
-      }
+      if (!response.ok) throw new Error('Failed to fetch cart');
 
       const data = await response.json();
       this.cart = data.cart;
@@ -137,13 +125,16 @@ class CartPageManager {
       this.renderCart();
       this.updateCartBadge();
       
-    } catch (error) {
-      console.error('Error loading cart:', error);
+    } catch (error) {console.error('Error loading cart:', error);
       this.showError('Failed to load cart. Please refresh the page.');
     }
   }
 
-  // Render cart items
+
+  // ----------------------
+  // Render Cart
+  // ----------------------
+  
   renderCart() {
     const loadingState = document.getElementById('loadingState');
     const emptyCart = document.getElementById('emptyCart');
@@ -261,7 +252,11 @@ class CartPageManager {
       `$${totalPrice.toFixed(2)} ($${pricePerUnit.toFixed(2)}/100g)`;
   }
 
-  // Update cart item weight
+
+  // ----------------------
+  // Update Item Weight Function
+  // ----------------------
+  
   async updateCartItem() {
     const weightSelect = document.getElementById('newWeightSelect');
     const newWeight = parseInt(weightSelect.value);
@@ -278,23 +273,14 @@ class CartPageManager {
       confirmBtn.disabled = true;
       confirmBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Updating...';
 
-      const url = this.getApiUrl('/cart');
-      const response = await this.mockFetch(url, {
-        method: 'PUT',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+      const response = await this.apiFetch('PUT', '/cart', {
         body: JSON.stringify({
           productId: productId,
           weightGrams: newWeight
         })
       });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to update cart');
-      }
+      if (!response.ok) throw new Error('Failed to update cart');
 
       const data = await response.json();
       this.cart = data.cart;
@@ -320,26 +306,20 @@ class CartPageManager {
     }
   }
 
-  // Remove item from cart
+
+  // ----------------------
+  // Remove Item Function
+  // ----------------------
+  
   async removeItem(productId, productName) {
     if (!confirm(`Remove ${productName} from cart?`)) {
       return;
     }
 
     try {
-      const url = this.getApiUrl(`/cart/${productId}`);
-      const response = await this.mockFetch(url, {
-        method: 'DELETE',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
+      const response = await this.apiFetch('DELETE', `/cart/${productId}`);
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to remove item');
-      }
+      if (!response.ok) throw new Error('Failed to remove item');
 
       const data = await response.json();
       this.cart = data.cart;
@@ -354,7 +334,11 @@ class CartPageManager {
     }
   }
 
-  // Confirm clear cart
+
+  // ----------------------
+  // Clear Cart Function
+  // ---------------------- 
+
   confirmClearCart() {
     if (!confirm('Are you sure you want to clear your entire cart? This cannot be undone.')) {
       return;
@@ -362,22 +346,11 @@ class CartPageManager {
     this.clearCart();
   }
 
-  // Clear entire cart
   async clearCart() {
     try {
-      const url = this.getApiUrl('/cart');
-      const response = await this.mockFetch(url, {
-        method: 'DELETE',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
+      const response = await this.apiFetch('DELETE', '/cart');
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to clear cart');
-      }
+      if (!response.ok) throw new Error('Failed to clear cart');
 
       const data = await response.json();
       this.cart = data.cart;
@@ -391,6 +364,11 @@ class CartPageManager {
       this.showNotification(error.message, 'error');
     }
   }
+
+
+  // ----------------------
+  // Helpers
+  // ---------------------- 
 
   // Update order summary
   updateOrderSummary() {
@@ -480,10 +458,10 @@ class CartPageManager {
   }
 }
 
-// Initialize cart page manager
+
 const cartPageManager = new CartPageManager();
 
-// Initialize when DOM is ready
+
 document.addEventListener('DOMContentLoaded', () => {
   cartPageManager.init();
 });

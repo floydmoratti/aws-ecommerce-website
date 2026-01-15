@@ -4,121 +4,116 @@ class CartManager {
   constructor() {
     this.cart = null;
     this.isLoading = false;
-    this.config = window.API_CONFIG || { USE_MOCK_API: false, REAL_API_BASE: '/api', MOCK_API_BASE: '/mock' };
+
+    this.config = window.API_CONFIG;
+    this.mockRouter = this.config.USE_MOCK_API
+      ? new window.MockRouter(this.config.MOCK_API_BASE)
+      : null;
   }
 
-  // Get the appropriate API URL
-  getApiUrl(endpoint) {
+
+  // ----------------------
+  // API Fetch Function
+  // ----------------------
+
+  async apiFetch(method, endpoint, options = {}) {
+    let url;
+
+    // Mock
     if (this.config.USE_MOCK_API) {
-      // Map endpoints to mock files
-      const mockEndpoints = {
-        '/cart': '/cart.json',
-        '/cart/add': '/cart-add.json',
-        '/cart/update': '/cart-update.json',
-        '/cart/delete': '/cart-delete.json',
-        '/cart/clear': '/cart-clear.json'
-      };
-      
-      const mockFile = mockEndpoints[endpoint] || `${endpoint}.json`;
-      return `${this.config.MOCK_API_BASE}${mockFile}`;
-    }
-    return `${this.config.REAL_API_BASE}${endpoint}`;
-  }
+      url = this.mockRouter.resolve(method, endpoint);
 
-  // Mock API fetch wrapper
-  async mockFetch(url, options = {}) {
-    if (!this.config.USE_MOCK_API) {
-      // Use real fetch for real API
-      return fetch(url, options);
-    }
+      await new Promise(r => setTimeout(r, 300));
 
-    // Simulate network delay for mock API
-    await new Promise(resolve => setTimeout(resolve, 300));
+      try {
+        const response = await fetch(url);
 
-    try {
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(`Mock API error: ${response.status}`);
-      }
-      const data = await response.json();
-      
-      // Return a mock Response object
-      return {
+        if (!response.ok) throw new Error(`Mock API error: ${response.status}`);
+        
+        const data = await response.json();
+
+        return {
         ok: true,
         status: 200,
         json: async () => data,
         text: async () => JSON.stringify(data)
-      };
-    } catch (error) {
-      console.error('Mock API fetch error:', error);
-      throw error;
+        };
+      } catch (error) {
+        console.error('Mock API fetch error:', error);
+        throw error;
+      }
     }
+
+    // Real
+    url = `${this.config.REAL_API_BASE}${endpoint}`;
+
+    return fetch(url, {
+      method,
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(options.headers || {})
+      },
+      body: options.body
+    });
   }
 
-  // Get cart from API
+
+  // ----------------------
+  // Get Cart Function
+  // ----------------------
+
   async getCart() {
     try {
-      const url = this.getApiUrl('/cart');
-      const response = await this.mockFetch(url, {
-        method: 'GET',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
+      const response = await this.apiFetch('GET', '/cart');
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch cart');
-      }
+      if (!response.ok) throw new Error('Failed to fetch cart');
 
       const data = await response.json();
       this.cart = data.cart;
+      
       this.updateCartBadge();
+
       return this.cart;
-    } catch (error) {
-      console.error('Error fetching cart:', error);
+
+    } catch (error) {console.error('Error fetching cart:', error);
       return null;
     }
   }
 
-  // Add item to cart
-  async addToCart(button, productId, weightGrams) {
-  if (this.isLoading) return;
 
-  this.isLoading = true;
-  const originalText = button.innerHTML;
+  // ----------------------
+  // Add To Cart Function
+  // ----------------------
+
+  async addToCart(button, productId, weightGrams) {
+    if (this.isLoading) return;
+
+    this.isLoading = true;
+    const originalText = button.innerHTML;
 
   try {
     button.disabled = true;
     button.innerHTML = '<i class="bi bi-hourglass-split me-1"></i> Adding...';
 
-    const url = this.getApiUrl('/cart/add');
-    const response = await this.mockFetch(url, {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ productId, weightGrams })
-    });
+    const response = await this.apiFetch('POST', '/cart/add', {
+        body: JSON.stringify({ productId, weightGrams })
+      });
 
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Failed to add to cart');
-    }
+    if (!response.ok) throw new Error('Failed to add item');
 
     const data = await response.json();
     this.cart = data.cart;
 
     button.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> Added!';
-    button.classList.add('btn-success');
-    button.classList.remove('btn-outline-dark');
+      button.classList.replace('btn-outline-dark', 'btn-success');
 
     this.updateCartBadge();
     this.showNotification('Item added to cart!', 'success');
 
     setTimeout(() => {
       button.innerHTML = originalText;
-      button.classList.remove('btn-success');
-      button.classList.add('btn-outline-dark');
+      button.classList.replace('btn-success', 'btn-outline-dark');
       if (button.dataset.soldOut !== "true") {
         button.disabled = false;
       }
@@ -134,41 +129,35 @@ class CartManager {
 
     setTimeout(() => {
       button.innerHTML = originalText;
-      button.classList.remove('btn-danger');
-      button.classList.add('btn-outline-dark');
+      button.classList.replace('btn-danger', 'btn-outline-dark');
       button.disabled = false;
     }, 3000);
 
-    throw error;
   } finally {
     this.isLoading = false;
   }
 }
 
-  // Update cart badge in navigation
+  // ----------------------
+  // UI Helpers
+  // ----------------------
+
   updateCartBadge() {
     const badge = document.querySelector('.badge.bg-dark');
-    if (badge && this.cart) {
-      const itemCount = this.cart.itemCount || 0;
-      badge.textContent = itemCount;
-      
-      // Add animation
-      badge.classList.add('cart-badge-update');
-      setTimeout(() => {
-        badge.classList.remove('cart-badge-update');
-      }, 300);
-    }
+    if (!badge || !this.cart) return;
+
+    badge.textContent = this.cart.itemCount || 0;
+    badge.classList.add('cart-badge-update');
+
+    setTimeout(() => badge.classList.remove('cart-badge-update'), 300);
   }
 
-  // Show toast notification
   showNotification(message, type = 'success') {
-    // Remove existing notifications
     const existing = document.querySelector('.cart-notification');
     if (existing) {
       existing.remove();
     }
 
-    // Create notification
     const notification = document.createElement('div');
     notification.className = `cart-notification cart-notification-${type}`;
     notification.innerHTML = `
@@ -181,12 +170,10 @@ class CartManager {
 
     document.body.appendChild(notification);
 
-    // Show notification
     setTimeout(() => {
       notification.classList.add('show');
     }, 10);
 
-    // Hide and remove after 3 seconds
     setTimeout(() => {
       notification.classList.remove('show');
       setTimeout(() => {
@@ -196,33 +183,37 @@ class CartManager {
   }
 }
 
-// Initialize cart manager
+
 const cartManager = new CartManager();
 
-// Setup add to cart button
+
+// ----------------------
+// Add To Cart Button Setup
+// ----------------------
+
 function setupAddToCartButton() {
-  const cartButton = document.querySelector('.add-to-cart-btn');
+  const button = document.querySelector('.add-to-cart-btn');
+  const product = document.querySelector('.product');
   const weightSelect = document.getElementById('weightSelect');
-  const productDiv = document.querySelector('.product');
 
-  if (!cartButton || !weightSelect || !productDiv) {
-    console.error('Required elements not found');
+  if (!button || !product || !weightSelect) {
+    console.error('Add-to-cart elements missing');
     return;
   }
 
-  const productId = productDiv.dataset.id;
+  const productId = product.dataset.id;
 
-  cartButton.addEventListener('click', async (e) => {
-  e.preventDefault();
+  button.addEventListener('click', e => {
+    e.preventDefault();
 
-  if (cartButton.disabled || cartButton.dataset.soldOut === "true") {
+  if (button.disabled || button.dataset.soldOut === "true") {
     return;
   }
 
-  const selectedWeight = parseInt(weightSelect.value);
+  const weightGrams = parseInt(weightSelect.value);
 
   try {
-    await cartManager.addToCart(cartButton, productId, selectedWeight);
+    cartManager.addToCart(button, productId, weightGrams);
   } catch (error) {
     console.error('Failed to add to cart:', error);
   }
@@ -235,11 +226,14 @@ function setupAddToCartButton() {
   });
 }
 
-// Setup buy now button
-function setupBuyNowButtons() {
-  const buyButtons = document.querySelectorAll('.buy-btn');
+// ----------------------
+// Buy Now Button Setup
+// ----------------------
 
-  buyButtons.forEach(button => {
+function setupBuyNowButtons() {
+  const buttons = document.querySelectorAll('.buy-btn');
+
+  buttons.forEach(button => {
     button.addEventListener('click', (e) => {
       e.preventDefault();
 
@@ -262,19 +256,17 @@ function setupBuyNowButtons() {
   });
 }
 
+// ----------------------
+// Stock Check Button Update
+// ----------------------
 
-// Disable buttons when stock = 0
 async function updateButtons() {
   const products = document.querySelectorAll('.product');
   if (!products.length) return;
 
-  const config = window.API_CONFIG || { USE_MOCK_API: false };
-  const apiUrl = config.USE_MOCK_API
-    ? '/mock/products.json'
-    : '/api/products';
-
   try {
-    const response = await fetch(apiUrl);
+    const response = await cartManager.apiFetch('GET', '/products');
+    
     if (!response.ok) throw new Error('Products API error');
 
     const data = await response.json();
