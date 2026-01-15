@@ -1,0 +1,20 @@
+{
+  "success": true,
+  "message": "Item removed from cart",
+  "cart": {
+    "userId": "mock-user-123",
+    "items": [
+      {
+        "productId": "CH-GB-100",
+        "productName": "Gummy Bears",
+        "weightGrams": 500,
+        "pricePerUnit": 2.79,
+        "totalPrice": 13.95
+      }
+    ],
+    "itemCount": 1,
+    "totalWeight": 500,
+    "subtotal": 13.95,
+    "lastUpdated": "2026-01-14T12:10:00Z"
+  }
+}

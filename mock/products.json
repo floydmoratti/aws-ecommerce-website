@@ -1,0 +1,66 @@
+{
+  "CH-SW-100": {
+    "id": "CH-SW-100",
+    "name": "Sour Worms",
+    "pricePerUnit": 2.99,
+    "category": "Candy",
+    "quantity": 0,
+    "inStock": true
+  },
+  "CH-GB-100": {
+    "id": "CH-GB-100",
+    "name": "Gummy Bears",
+    "pricePerUnit": 2.79,
+    "category": "Candy",
+    "quantity": 2000,
+    "inStock": true
+  },
+  "CH-GD-100": {
+    "id": "CH-GD-100",
+    "name": "Gum Drops",
+    "pricePerUnit": 2.49,
+    "category": "Candy",
+    "quantity": 1000,
+    "inStock": true
+  },
+  "CH-MM-100": {
+    "id": "CH-MM-100",
+    "name": "M&Ms",
+    "pricePerUnit": 3.49,
+    "category": "Candy",
+    "quantity": 0,
+    "inStock": true
+  },
+  "CH-CB-100": {
+    "id": "CH-CB-100",
+    "name": "Coke Bottles",
+    "pricePerUnit": 2.79,
+    "category": "Candy",
+    "quantity": 1000,
+    "inStock": true
+  },
+  "CH-SL-100": {
+    "id": "CH-SL-100",
+    "name": "Spearmint Leaves",
+    "pricePerUnit": 3.29,
+    "category": "Candy",
+    "quantity": 1000,
+    "inStock": true
+  },
+  "CH-JB-100": {
+    "id": "CH-JB-100",
+    "name": "Jelly Beans",
+    "pricePerUnit": 2.69,
+    "category": "Candy",
+    "quantity": 1000,
+    "inStock": true
+  },
+  "CH-GH-100": {
+    "id": "CH-GH-100",
+    "name": "Gummy Hearts",
+    "pricePerUnit": 3.19,
+    "category": "Candy",
+    "quantity": 1000,
+    "inStock": true
+  }
+}

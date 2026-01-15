@@ -1,17 +1,65 @@
-// Cart functionality for product pages
-const API_BASE_URL = '/api';
-const API_MOCK_URL = "/products/mock/products.json";
+// CART.JS - Updated with Mock API Support
 
 class CartManager {
   constructor() {
     this.cart = null;
     this.isLoading = false;
+    this.config = window.API_CONFIG || { USE_MOCK_API: false, REAL_API_BASE: '/api', MOCK_API_BASE: '/mock' };
+  }
+
+  // Get the appropriate API URL
+  getApiUrl(endpoint) {
+    if (this.config.USE_MOCK_API) {
+      // Map endpoints to mock files
+      const mockEndpoints = {
+        '/cart': '/cart.json',
+        '/cart/add': '/cart-add.json',
+        '/cart/update': '/cart-update.json',
+        '/cart/delete': '/cart-delete.json',
+        '/cart/clear': '/cart-clear.json'
+      };
+      
+      const mockFile = mockEndpoints[endpoint] || `${endpoint}.json`;
+      return `${this.config.MOCK_API_BASE}${mockFile}`;
+    }
+    return `${this.config.REAL_API_BASE}${endpoint}`;
+  }
+
+  // Mock API fetch wrapper
+  async mockFetch(url, options = {}) {
+    if (!this.config.USE_MOCK_API) {
+      // Use real fetch for real API
+      return fetch(url, options);
+    }
+
+    // Simulate network delay for mock API
+    await new Promise(resolve => setTimeout(resolve, 300));
+
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Mock API error: ${response.status}`);
+      }
+      const data = await response.json();
+      
+      // Return a mock Response object
+      return {
+        ok: true,
+        status: 200,
+        json: async () => data,
+        text: async () => JSON.stringify(data)
+      };
+    } catch (error) {
+      console.error('Mock API fetch error:', error);
+      throw error;
+    }
   }
 
   // Get cart from API
   async getCart() {
     try {
-      const response = await fetch(`${API_BASE_URL}/cart`, {
+      const url = this.getApiUrl('/cart');
+      const response = await this.mockFetch(url, {
         method: 'GET',
         credentials: 'include',
         headers: {
@@ -34,83 +82,68 @@ class CartManager {
   }
 
   // Add item to cart
-  async addToCart(productId, weightGrams) {
-    if (this.isLoading) return;
-    
-    this.isLoading = true;
-    const button = document.querySelector('.add-to-cart-btn');
-    const originalText = button.innerHTML;
-    
-    try {
-      // Show loading state
-      button.disabled = true;
-      button.innerHTML = '<i class="bi bi-hourglass-split me-1"></i> Adding...';
+  async addToCart(button, productId, weightGrams) {
+  if (this.isLoading) return;
 
-      const response = await fetch(`${API_BASE_URL}/cart/add`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          productId: productId,
-          weightGrams: weightGrams
-        })
-      });
+  this.isLoading = true;
+  const originalText = button.innerHTML;
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to add to cart');
-      }
+  try {
+    button.disabled = true;
+    button.innerHTML = '<i class="bi bi-hourglass-split me-1"></i> Adding...';
 
-      const data = await response.json();
-      this.cart = data.cart;
-      
-      // Show success feedback
-      button.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> Added!';
-      button.classList.add('btn-success');
-      button.classList.remove('btn-outline-dark');
-      
-      // Update cart badge
-      this.updateCartBadge();
-      
-      // Show notification
-      this.showNotification('Item added to cart!', 'success');
-      
-      // Reset button after 2 seconds
-      setTimeout(() => {
-        button.innerHTML = originalText;
-        button.classList.remove('btn-success');
-        button.classList.add('btn-outline-dark');
-        button.disabled = false;
-      }, 2000);
-      
-      return data;
-      
-    } catch (error) {
-      console.error('Error adding to cart:', error);
-      
-      // Show error feedback
-      button.innerHTML = '<i class="bi bi-exclamation-circle-fill me-1"></i> Error';
-      button.classList.add('btn-danger');
-      button.classList.remove('btn-outline-dark');
-      
-      // Show error notification
-      this.showNotification(error.message, 'error');
-      
-      // Reset button after 3 seconds
-      setTimeout(() => {
-        button.innerHTML = originalText;
-        button.classList.remove('btn-danger');
-        button.classList.add('btn-outline-dark');
-        button.disabled = false;
-      }, 3000);
-      
-      throw error;
-    } finally {
-      this.isLoading = false;
+    const url = this.getApiUrl('/cart/add');
+    const response = await this.mockFetch(url, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ productId, weightGrams })
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to add to cart');
     }
+
+    const data = await response.json();
+    this.cart = data.cart;
+
+    button.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> Added!';
+    button.classList.add('btn-success');
+    button.classList.remove('btn-outline-dark');
+
+    this.updateCartBadge();
+    this.showNotification('Item added to cart!', 'success');
+
+    setTimeout(() => {
+      button.innerHTML = originalText;
+      button.classList.remove('btn-success');
+      button.classList.add('btn-outline-dark');
+      if (button.dataset.soldOut !== "true") {
+        button.disabled = false;
+      }
+    }, 2000);
+
+    return data;
+
+  } catch (error) {
+    button.innerHTML = '<i class="bi bi-exclamation-circle-fill me-1"></i> Error';
+    button.classList.add('btn-danger');
+
+    this.showNotification(error.message, 'error');
+
+    setTimeout(() => {
+      button.innerHTML = originalText;
+      button.classList.remove('btn-danger');
+      button.classList.add('btn-outline-dark');
+      button.disabled = false;
+    }, 3000);
+
+    throw error;
+  } finally {
+    this.isLoading = false;
   }
+}
 
   // Update cart badge in navigation
   updateCartBadge() {
@@ -142,6 +175,7 @@ class CartManager {
       <div class="cart-notification-content">
         <i class="bi bi-${type === 'success' ? 'check-circle-fill' : 'exclamation-circle-fill'} me-2"></i>
         <span>${message}</span>
+        ${this.config.USE_MOCK_API ? '<small class="ms-2 text-muted">(Mock)</small>' : ''}
       </div>
     `;
 
@@ -167,30 +201,32 @@ const cartManager = new CartManager();
 
 // Setup add to cart button
 function setupAddToCartButton() {
-  const button = document.querySelector('.add-to-cart-btn');
+  const cartButton = document.querySelector('.add-to-cart-btn');
   const weightSelect = document.getElementById('weightSelect');
   const productDiv = document.querySelector('.product');
 
-  if (!button || !weightSelect || !productDiv) {
+  if (!cartButton || !weightSelect || !productDiv) {
     console.error('Required elements not found');
     return;
   }
 
   const productId = productDiv.dataset.id;
 
-  button.addEventListener('click', async (e) => {
-    e.preventDefault();
-    
-    if (button.disabled) return;
+  cartButton.addEventListener('click', async (e) => {
+  e.preventDefault();
 
-    const selectedWeight = parseInt(weightSelect.value);
-    
-    try {
-      await cartManager.addToCart(productId, selectedWeight);
-    } catch (error) {
-      console.error('Failed to add to cart:', error);
-    }
-  });
+  if (cartButton.disabled || cartButton.dataset.soldOut === "true") {
+    return;
+  }
+
+  const selectedWeight = parseInt(weightSelect.value);
+
+  try {
+    await cartManager.addToCart(cartButton, productId, selectedWeight);
+  } catch (error) {
+    console.error('Failed to add to cart:', error);
+  }
+});
 
   // Update price display when weight changes
   weightSelect.addEventListener('change', (e) => {
@@ -199,36 +235,92 @@ function setupAddToCartButton() {
   });
 }
 
+// Setup buy now button
+function setupBuyNowButtons() {
+  const buyButtons = document.querySelectorAll('.buy-btn');
+
+  buyButtons.forEach(button => {
+    button.addEventListener('click', (e) => {
+      e.preventDefault();
+
+      if (
+        button.disabled ||
+        button.dataset.soldOut === "true"
+      ) {
+        return;
+      }
+
+      const url = button.dataset.url;
+
+      if (!url) {
+        console.error('Buy Now button missing data-url');
+        return;
+      }
+
+      window.location.href = url;
+    });
+  });
+}
+
+
 // Disable buttons when stock = 0
 async function updateButtons() {
   const products = document.querySelectorAll('.product');
   if (!products.length) return;
 
+  const config = window.API_CONFIG || { USE_MOCK_API: false };
+  const apiUrl = config.USE_MOCK_API
+    ? '/mock/products.json'
+    : '/api/products';
+
   try {
-    const response = await fetch(API_MOCK_URL);
-    if (!response.ok) throw new Error('Mock API error');
+    const response = await fetch(apiUrl);
+    if (!response.ok) throw new Error('Products API error');
 
     const data = await response.json();
 
     products.forEach(product => {
       const productId = product.dataset.id;
-      const button = product.querySelector('.add-to-cart-btn');
 
-      if (data[productId] && data[productId].quantity === 0) {
-        button.textContent = "Sold Out";
-        button.disabled = true;
-        button.classList.add('disabled');
+      const cartButton = product.querySelector('.add-to-cart-btn');
+      const buyButton  = product.querySelector('.buy-btn');
+
+      const productData = data[productId];
+
+      if (!productData) {
+        console.warn(`No product data for ${productId}`);
+        return;
+      }
+
+      if (productData.quantity === 0) {
+        if (cartButton) {
+          cartButton.textContent = 'Sold Out';
+          cartButton.disabled = true;
+          cartButton.dataset.soldOut = 'true';
+        }
+
+        if (buyButton) {
+          buyButton.textContent = 'Sold Out';
+          buyButton.disabled = true;
+          buyButton.dataset.soldOut = 'true';
+        }
       }
     });
   } catch (err) {
-    console.error(err);
+    console.error('Failed to update buttons:', err);
   }
 }
+
+
 
 // Load cart on page load
 async function initializeCart() {
   try {
     await cartManager.getCart();
+    
+    // Log mode for debugging
+    const config = window.API_CONFIG || { USE_MOCK_API: false };
+    console.log(`Cart initialized in ${config.USE_MOCK_API ? 'MOCK' : 'REAL'} API mode`);
   } catch (error) {
     console.error('Failed to initialize cart:', error);
   }
@@ -238,6 +330,7 @@ async function initializeCart() {
 document.addEventListener('DOMContentLoaded', () => {
   initializeCart();
   setupAddToCartButton();
+  setupBuyNowButtons();
   updateButtons();
 });
 

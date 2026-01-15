@@ -1,0 +1,12 @@
+{
+  "success": true,
+  "message": "Cart cleared successfully",
+  "cart": {
+    "userId": "mock-user-123",
+    "items": [],
+    "itemCount": 0,
+    "totalWeight": 0,
+    "subtotal": 0,
+    "lastUpdated": "2026-01-14T12:15:00Z"
+  }
+}

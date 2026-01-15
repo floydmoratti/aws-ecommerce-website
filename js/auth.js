@@ -1,5 +1,5 @@
+// AUTH.JS
 /**
- * auth.js
  * Centralized client-side authentication logic for Cognito Hosted UI
  * - Builds Sign In / Sign Up URLs
  * - Handles Sign Out

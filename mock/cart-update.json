@@ -1,0 +1,27 @@
+{
+  "success": true,
+  "message": "Cart updated successfully",
+  "cart": {
+    "userId": "mock-user-123",
+    "items": [
+      {
+        "productId": "CH-SW-100",
+        "productName": "Sour Worms",
+        "weightGrams": 500,
+        "pricePerUnit": 2.99,
+        "totalPrice": 14.95
+      },
+      {
+        "productId": "CH-GB-100",
+        "productName": "Gummy Bears",
+        "weightGrams": 500,
+        "pricePerUnit": 2.79,
+        "totalPrice": 13.95
+      }
+    ],
+    "itemCount": 2,
+    "totalWeight": 1000,
+    "subtotal": 28.90,
+    "lastUpdated": "2026-01-14T12:05:00Z"
+  }
+}
