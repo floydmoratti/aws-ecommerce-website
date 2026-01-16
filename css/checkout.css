@@ -1,0 +1,170 @@
+/* Checkout Progress Steps */
+.checkout-progress {
+  background: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  flex: 1;
+}
+
+.step-number {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #dee2e6;
+  color: #6c757d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.step-label {
+  font-size: 0.875rem;
+  color: #6c757d;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.step.active .step-number {
+  background: #0d6efd;
+  color: white;
+  box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.1);
+}
+
+.step.active .step-label {
+  color: #0d6efd;
+}
+
+.step.completed .step-number {
+  background: #198754;
+  color: white;
+}
+
+.step.completed .step-label {
+  color: #198754;
+}
+
+.step.completed .step-number::before {
+  content: "✓";
+  font-weight: bold;
+}
+
+/* Form Styling */
+.checkout-step {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.form-control:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.form-label {
+  font-weight: 500;
+  color: #495057;
+  margin-bottom: 0.5rem;
+}
+
+/* Card styling */
+.card-header {
+  font-weight: 600;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.125);
+}
+
+/* Review section */
+#reviewShipping, #reviewPayment {
+  line-height: 1.8;
+}
+
+/* Order summary items */
+#orderItemsList {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+#orderItemsList::-webkit-scrollbar {
+  width: 6px;
+}
+
+#orderItemsList::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+#orderItemsList::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 3px;
+}
+
+#orderItemsList::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Sticky order summary */
+.sticky-top {
+  position: sticky;
+  z-index: 1020;
+}
+
+/* Button animations */
+.btn {
+  transition: all 0.2s ease;
+}
+
+.btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Success modal */
+#successModal .modal-body {
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+}
+
+/* Responsive design */
+@media (max-width: 991px) {
+  .checkout-progress {
+    padding: 1rem;
+  }
+
+  .step {
+    flex-direction: row;
+    justify-content: flex-start;
+    margin-bottom: 0.5rem;
+  }
+
+  .step-number {
+    margin-right: 0.75rem;
+    margin-bottom: 0;
+  }
+
+  .sticky-top {
+    position: relative !important;
+    margin-top: 2rem;
+  }
+}

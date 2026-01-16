@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="Checkout - Candy Heaven" />
+    <meta name="author" content="Floyd Moratti" />
+    <title>Checkout - Candy Heaven</title>
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" />
+    <link href="/css/main.css" rel="stylesheet" />
+</head>
+<body>
+    <!-- Navigation-->
+    <nav class="navbar navbar-expand-lg navbar-light candy-navbar">
+        <div class="container px-4 px-lg-5">
+            <a class="navbar-brand" href="/"><b>CANDY HEAVEN</b></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
+                    <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#!">About</a></li>
+                </ul>
+                <form class="d-flex">
+                    <a class="btn btn-outline-dark" href="/cart.html">
+                        <i class="bi-cart-fill me-1"></i>
+                        Cart
+                        <span class="badge bg-dark text-white ms-1 rounded-pill" id="cartBadge">0</span>
+                    </a>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Checkout Section -->
+    <section class="py-5">
+        <div class="container px-4 px-lg-5">
+            <!-- Auth Required Message -->
+            <div id="authRequired" class="alert alert-warning" style="display: none;">
+                <i class="bi bi-shield-lock me-2"></i>
+                <strong>Authentication Required:</strong> Please <a href="#" id="authSignInLink">sign in</a> to complete your order.
+            </div>
+
+            <!-- Loading State -->
+            <div id="loadingState" class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-3">Loading checkout...</p>
+            </div>
+
+            <!-- Empty Cart Message -->
+            <div id="emptyCartMessage" class="text-center py-5" style="display: none;">
+                <i class="bi bi-cart-x" style="font-size: 4rem; color: #ccc;"></i>
+                <h4 class="mt-3">Your cart is empty</h4>
+                <p class="text-muted">Add some items before checking out!</p>
+                <a href="/" class="btn btn-primary mt-3">
+                    <i class="bi bi-shop me-2"></i>Continue Shopping
+                </a>
+            </div>
+
+            <!-- Checkout Content -->
+            <div id="checkoutContent" style="display: none;">
+                <h2 class="mb-4">Checkout</h2>
+                
+                <div class="row">
+                    <!-- Left Column - Forms -->
+                    <div class="col-lg-7">
+                        <!-- Progress Steps -->
+                        <div class="checkout-progress mb-4">
+                            <div class="d-flex justify-content-between">
+                                <div class="step active" id="step1">
+                                    <div class="step-number">1</div>
+                                    <div class="step-label">Shipping</div>
+                                </div>
+                                <div class="step" id="step2">
+                                    <div class="step-number">2</div>
+                                    <div class="step-label">Payment</div>
+                                </div>
+                                <div class="step" id="step3">
+                                    <div class="step-number">3</div>
+                                    <div class="step-label">Review</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 1: Shipping Information -->
+                        <div id="shippingForm" class="checkout-step">
+                            <div class="card mb-4">
+                                <div class="card-header bg-primary text-white">
+                                    <h5 class="mb-0"><i class="bi bi-truck me-2"></i>Shipping Information</h5>
+                                </div>
+                                <div class="card-body">
+                                    <form id="shippingFormElement">
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <label for="firstName" class="form-label">First Name *</label>
+                                                <input type="text" class="form-control" id="firstName" required>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="lastName" class="form-label">Last Name *</label>
+                                                <input type="text" class="form-control" id="lastName" required>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="email" class="form-label">Email *</label>
+                                            <input type="email" class="form-control" id="email" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="phone" class="form-label">Phone Number *</label>
+                                            <input type="tel" class="form-control" id="phone" placeholder="+1 (555) 123-4567" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="address" class="form-label">Street Address *</label>
+                                            <input type="text" class="form-control" id="address" placeholder="123 Main Street" required>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <label for="city" class="form-label">City *</label>
+                                                <input type="text" class="form-control" id="city" required>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label for="state" class="form-label">State *</label>
+                                                <input type="text" class="form-control" id="state" placeholder="CA" required>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label for="zip" class="form-label">ZIP *</label>
+                                                <input type="text" class="form-control" id="zip" placeholder="90210" required>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex justify-content-end">
+                                            <button type="submit" class="btn btn-primary">
+                                                Continue to Payment <i class="bi bi-arrow-right ms-2"></i>
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Payment Information -->
+                        <div id="paymentForm" class="checkout-step" style="display: none;">
+                            <div class="card mb-4">
+                                <div class="card-header bg-primary text-white">
+                                    <h5 class="mb-0"><i class="bi bi-credit-card me-2"></i>Payment Information</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="alert alert-info">
+                                        <i class="bi bi-info-circle me-2"></i>
+                                        <strong>Test Mode:</strong> Use card number 4242424242424242 for testing
+                                    </div>
+                                    <form id="paymentFormElement">
+                                        <div class="mb-3">
+                                            <label for="cardName" class="form-label">Name on Card *</label>
+                                            <input type="text" class="form-control" id="cardName" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="cardNumber" class="form-label">Card Number *</label>
+                                            <input type="text" class="form-control" id="cardNumber" 
+                                                   placeholder="1234 5678 9012 3456" 
+                                                   maxlength="19" required>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <label for="cardExpiry" class="form-label">Expiry Date *</label>
+                                                <input type="text" class="form-control" id="cardExpiry" 
+                                                       placeholder="MM/YY" maxlength="5" required>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="cardCvv" class="form-label">CVV *</label>
+                                                <input type="text" class="form-control" id="cardCvv" 
+                                                       placeholder="123" maxlength="4" required>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <button type="button" class="btn btn-outline-secondary" id="backToShipping">
+                                                <i class="bi bi-arrow-left me-2"></i>Back
+                                            </button>
+                                            <button type="submit" class="btn btn-primary">
+                                                Review Order <i class="bi bi-arrow-right ms-2"></i>
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Review & Place Order -->
+                        <div id="reviewForm" class="checkout-step" style="display: none;">
+                            <div class="card mb-4">
+                                <div class="card-header bg-primary text-white">
+                                    <h5 class="mb-0"><i class="bi bi-check-circle me-2"></i>Review Your Order</h5>
+                                </div>
+                                <div class="card-body">
+                                    <h6 class="mb-3">Shipping Address:</h6>
+                                    <div id="reviewShipping" class="mb-4 p-3 bg-light rounded"></div>
+                                    
+                                    <h6 class="mb-3">Payment Method:</h6>
+                                    <div id="reviewPayment" class="mb-4 p-3 bg-light rounded"></div>
+
+                                    <div class="form-check mb-4">
+                                        <input class="form-check-input" type="checkbox" id="termsCheck" required>
+                                        <label class="form-check-label" for="termsCheck">
+                                            I agree to the <a href="#" target="_blank">Terms & Conditions</a> and <a href="#" target="_blank">Privacy Policy</a>
+                                        </label>
+                                    </div>
+
+                                    <div class="d-flex justify-content-between">
+                                        <button type="button" class="btn btn-outline-secondary" id="backToPayment">
+                                            <i class="bi bi-arrow-left me-2"></i>Back
+                                        </button>
+                                        <button type="button" class="btn btn-success btn-lg" id="placeOrderBtn">
+                                            <i class="bi bi-lock-fill me-2"></i>Place Order
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column - Order Summary -->
+                    <div class="col-lg-5">
+                        <div class="card sticky-top" style="top: 20px;">
+                            <div class="card-header bg-secondary text-white">
+                                <h5 class="mb-0">Order Summary</h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="orderItemsList" class="mb-3">
+                                    <!-- Order items will be inserted here -->
+                                </div>
+                                <hr>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Subtotal:</span>
+                                    <strong id="orderSubtotal">$0.00</strong>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Shipping:</span>
+                                    <strong id="orderShipping">$5.99</strong>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Tax (8%):</span>
+                                    <strong id="orderTax">$0.00</strong>
+                                </div>
+                                <hr>
+                                <div class="d-flex justify-content-between mb-0">
+                                    <span class="h5 mb-0">Total:</span>
+                                    <strong class="h5 mb-0 text-success" id="orderTotal">$0.00</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-5 candy-footer mt-5">
+        <div class="container">
+            <p class="m-0 text-center text-black">Copyright &copy; Candy Heaven 2026</p>
+        </div>
+    </footer>
+
+    <!-- Success Modal -->
+    <div class="modal fade" id="successModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body text-center p-5">
+                    <div class="mb-4">
+                        <i class="bi bi-check-circle-fill text-success" style="font-size: 5rem;"></i>
+                    </div>
+                    <h3 class="mb-3">Order Placed Successfully!</h3>
+                    <p class="mb-2">Thank you for your order.</p>
+                    <p class="text-muted">Order ID: <strong id="orderIdDisplay"></strong></p>
+                    <p class="text-muted">A confirmation email has been sent to your email address.</p>
+                    <div class="mt-4">
+                        <a href="/orders.html" class="btn btn-primary me-2">View Orders</a>
+                        <a href="/" class="btn btn-outline-secondary">Continue Shopping</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/config.js"></script>
+    <script src="/js/mock-router.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/checkout.js"></script>
+</body>
+</html>

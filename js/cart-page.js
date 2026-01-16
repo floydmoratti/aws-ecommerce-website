@@ -1,4 +1,4 @@
-// CART-PAGE.JS - Updated with Mock API Support
+// CART-PAGE.JS
 
 class CartPageManager {
   constructor() {
@@ -451,10 +451,7 @@ class CartPageManager {
 
   // Proceed to checkout
   proceedToCheckout() {
-    // Placeholder for checkout functionality
-    this.showNotification('Checkout functionality coming soon!', 'success');
-    // In production, redirect to checkout page:
-    // window.location.href = '/checkout';
+    window.location.href = '/checkout.html';
   }
 }
 

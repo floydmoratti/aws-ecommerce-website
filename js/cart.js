@@ -1,4 +1,4 @@
-// CART.JS - Updated with Mock API Support
+// CART.JS
 
 class CartManager {
   constructor() {

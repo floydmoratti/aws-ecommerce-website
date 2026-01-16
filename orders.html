@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="Order History - Candy Heaven" />
+    <meta name="author" content="Floyd Moratti" />
+    <title>My Orders - Candy Heaven</title>
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" />
+    <link href="/css/main.css" rel="stylesheet" />
+</head>
+<body>
+    <!-- Navigation-->
+    <nav class="navbar navbar-expand-lg navbar-light candy-navbar">
+        <div class="container px-4 px-lg-5">
+            <a class="navbar-brand" href="/"><b>CANDY HEAVEN</b></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
+                    <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#!">About</a></li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Shop</a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="#!">All Products</a></li>
+                            <li><hr class="dropdown-divider" /></li>
+                            <li><a class="dropdown-item" href="#!">Popular Items</a></li>
+                            <li><a class="dropdown-item" href="#!">New Arrivals</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <form class="d-flex">
+                    <a class="btn btn-outline-dark" href="/cart.html">
+                        <i class="bi-cart-fill me-1"></i>
+                        Cart
+                        <span class="badge bg-dark text-white ms-1 rounded-pill" id="cartBadge">0</span>
+                    </a>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Orders Section -->
+    <section class="py-5">
+        <div class="container px-4 px-lg-5">
+            <!-- Auth Required Message -->
+            <div id="authRequired" class="alert alert-warning" style="display: none;">
+                <i class="bi bi-shield-lock me-2"></i>
+                <strong>Authentication Required:</strong> Please <a href="#" id="authSignInLink">sign in</a> to view your orders.
+            </div>
+
+            <!-- Loading State -->
+            <div id="loadingState" class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-3">Loading your orders...</p>
+            </div>
+
+            <!-- Orders Content -->
+            <div id="ordersContent" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="mb-0"><i class="bi bi-bag-check me-2"></i>My Orders</h2>
+                    <div>
+                        <select class="form-select" id="orderFilter">
+                            <option value="all">All Orders</option>
+                            <option value="PAID">Paid</option>
+                            <option value="PENDING_PAYMENT">Pending Payment</option>
+                            <option value="SHIPPED">Shipped</option>
+                            <option value="FAILED">Failed</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div id="emptyOrders" class="text-center py-5" style="display: none;">
+                    <i class="bi bi-inbox" style="font-size: 4rem; color: #ccc;"></i>
+                    <h4 class="mt-3">No orders yet</h4>
+                    <p class="text-muted">Start shopping to create your first order!</p>
+                    <a href="/" class="btn btn-primary mt-3">
+                        <i class="bi bi-shop me-2"></i>Browse Products
+                    </a>
+                </div>
+
+                <!-- Orders List -->
+                <div id="ordersList">
+                    <!-- Orders will be inserted here -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-5 candy-footer mt-5">
+        <div class="container">
+            <p class="m-0 text-center text-black">Copyright &copy; Candy Heaven 2026</p>
+        </div>
+    </footer>
+
+    <!-- Order Details Modal -->
+    <div class="modal fade" id="orderDetailsModal" tabindex="-1" aria-labelledby="orderDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="orderDetailsModalLabel">Order Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="orderDetailsBody">
+                    <!-- Order details will be inserted here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="reorderBtn">
+                        <i class="bi bi-arrow-repeat me-2"></i>Reorder
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Track Order Modal -->
+    <div class="modal fade" id="trackOrderModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Track Order</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="tracking-timeline">
+                        <div class="tracking-step completed">
+                            <div class="tracking-icon"><i class="bi bi-check-circle-fill"></i></div>
+                            <div class="tracking-content">
+                                <h6>Order Placed</h6>
+                                <p class="text-muted small mb-0" id="trackOrderPlaced"></p>
+                            </div>
+                        </div>
+                        <div class="tracking-step" id="trackProcessing">
+                            <div class="tracking-icon"><i class="bi bi-clock-fill"></i></div>
+                            <div class="tracking-content">
+                                <h6>Processing</h6>
+                                <p class="text-muted small mb-0">Preparing your order</p>
+                            </div>
+                        </div>
+                        <div class="tracking-step" id="trackShipped">
+                            <div class="tracking-icon"><i class="bi bi-truck"></i></div>
+                            <div class="tracking-content">
+                                <h6>Shipped</h6>
+                                <p class="text-muted small mb-0">On the way to you</p>
+                            </div>
+                        </div>
+                        <div class="tracking-step" id="trackDelivered">
+                            <div class="tracking-icon"><i class="bi bi-house-fill"></i></div>
+                            <div class="tracking-content">
+                                <h6>Delivered</h6>
+                                <p class="text-muted small mb-0">Enjoy your candy!</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/config.js"></script>
+    <script src="/js/mock-router.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/orders.js"></script>
+    <script src="/js/cart.js"></script>
+</body>
+</html>

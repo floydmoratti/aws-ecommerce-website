@@ -1,0 +1,170 @@
+{
+  "success": true,
+  "orders": [
+    {
+      "orderId": "ORD-20260116-ABC123",
+      "userId": "user-123-456-789",
+      "items": {
+        "PROD001": {
+          "productName": "Rainbow Gummy Bears",
+          "quantity": 500,
+          "pricePerUnit": 3.99,
+          "totalPrice": 19.95
+        },
+        "PROD002": {
+          "productName": "Sour Watermelon Slices",
+          "quantity": 200,
+          "pricePerUnit": 4.49,
+          "totalPrice": 8.98
+        },
+        "PROD003": {
+          "productName": "Chocolate Truffles",
+          "quantity": 100,
+          "pricePerUnit": 8.99,
+          "totalPrice": 8.99
+        }
+      },
+      "totalAmount": 45.79,
+      "subtotal": 37.92,
+      "shipping": 5.99,
+      "tax": 3.03,
+      "status": "SHIPPED",
+      "paymentProvider": "MOCK_PROCESSOR",
+      "paymentRef": "PAY-MOCK-789ABC123",
+      "shippingAddress": {
+        "firstName": "John",
+        "lastName": "Doe",
+        "email": "john.doe@example.com",
+        "phone": "+1 (555) 123-4567",
+        "address": "123 Candy Lane",
+        "city": "Sweet City",
+        "state": "CA",
+        "zip": "90210"
+      },
+      "paymentInfo": {
+        "cardLast4": "4242",
+        "cardExpiry": "12/28"
+      },
+      "createdAt": "2026-01-16T14:30:00.000Z",
+      "updatedAt": "2026-01-16T15:45:00.000Z"
+    },
+    {
+      "orderId": "ORD-20260115-XYZ789",
+      "userId": "user-123-456-789",
+      "items": {
+        "PROD004": {
+          "productName": "Lollipop Assortment",
+          "quantity": 1000,
+          "pricePerUnit": 2.99,
+          "totalPrice": 29.90
+        },
+        "PROD001": {
+          "productName": "Rainbow Gummy Bears",
+          "quantity": 200,
+          "pricePerUnit": 3.99,
+          "totalPrice": 7.98
+        }
+      },
+      "totalAmount": 45.62,
+      "subtotal": 37.88,
+      "shipping": 5.99,
+      "tax": 3.03,
+      "status": "PAID",
+      "paymentProvider": "MOCK_PROCESSOR",
+      "paymentRef": "PAY-MOCK-456DEF789",
+      "shippingAddress": {
+        "firstName": "John",
+        "lastName": "Doe",
+        "email": "john.doe@example.com",
+        "phone": "+1 (555) 123-4567",
+        "address": "123 Candy Lane",
+        "city": "Sweet City",
+        "state": "CA",
+        "zip": "90210"
+      },
+      "paymentInfo": {
+        "cardLast4": "4242",
+        "cardExpiry": "12/28"
+      },
+      "createdAt": "2026-01-15T10:15:00.000Z",
+      "updatedAt": "2026-01-15T10:15:00.000Z"
+    },
+    {
+      "orderId": "ORD-20260110-DEF456",
+      "userId": "user-123-456-789",
+      "items": {
+        "PROD005": {
+          "productName": "Peppermint Patties",
+          "quantity": 500,
+          "pricePerUnit": 5.49,
+          "totalPrice": 27.45
+        }
+      },
+      "totalAmount": 36.07,
+      "subtotal": 27.45,
+      "shipping": 5.99,
+      "tax": 2.63,
+      "status": "SHIPPED",
+      "paymentProvider": "MOCK_PROCESSOR",
+      "paymentRef": "PAY-MOCK-123GHI456",
+      "shippingAddress": {
+        "firstName": "John",
+        "lastName": "Doe",
+        "email": "john.doe@example.com",
+        "phone": "+1 (555) 123-4567",
+        "address": "123 Candy Lane",
+        "city": "Sweet City",
+        "state": "CA",
+        "zip": "90210"
+      },
+      "paymentInfo": {
+        "cardLast4": "4242",
+        "cardExpiry": "12/28"
+      },
+      "createdAt": "2026-01-10T16:20:00.000Z",
+      "updatedAt": "2026-01-11T09:30:00.000Z"
+    },
+    {
+      "orderId": "ORD-20260105-GHI789",
+      "userId": "user-123-456-789",
+      "items": {
+        "PROD006": {
+          "productName": "Cotton Candy",
+          "quantity": 200,
+          "pricePerUnit": 6.99,
+          "totalPrice": 13.98
+        },
+        "PROD007": {
+          "productName": "Jelly Beans Mix",
+          "quantity": 500,
+          "pricePerUnit": 3.49,
+          "totalPrice": 17.45
+        }
+      },
+      "totalAmount": 39.93,
+      "subtotal": 31.43,
+      "shipping": 5.99,
+      "tax": 2.51,
+      "status": "PAID",
+      "paymentProvider": "MOCK_PROCESSOR",
+      "paymentRef": "PAY-MOCK-789JKL012",
+      "shippingAddress": {
+        "firstName": "John",
+        "lastName": "Doe",
+        "email": "john.doe@example.com",
+        "phone": "+1 (555) 123-4567",
+        "address": "123 Candy Lane",
+        "city": "Sweet City",
+        "state": "CA",
+        "zip": "90210"
+      },
+      "paymentInfo": {
+        "cardLast4": "4242",
+        "cardExpiry": "12/28"
+      },
+      "createdAt": "2026-01-05T12:00:00.000Z",
+      "updatedAt": "2026-01-05T12:00:00.000Z"
+    }
+  ],
+  "count": 4
+}

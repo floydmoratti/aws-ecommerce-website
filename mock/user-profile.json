@@ -1,0 +1,20 @@
+{
+  "success": true,
+  "user": {
+    "sub": "user-123-456-789",
+    "email": "john.doe@example.com",
+    "given_name": "John",
+    "family_name": "Doe",
+    "firstName": "John",
+    "lastName": "Doe",
+    "phone": "+1 (555) 123-4567",
+    "phone_number": "+1 (555) 123-4567",
+    "address": {
+      "street": "123 Candy Lane",
+      "city": "Sweet City",
+      "state": "CA",
+      "zip": "90210",
+      "postal_code": "90210"
+    }
+  }
+}

@@ -1,4 +1,4 @@
-// mock-router.js
+// MOCK-ROUTER.JS
 
 (function () {
 
@@ -12,7 +12,15 @@
         { method: 'PUT',    path: '/cart/items/:id',  file: 'cart-update.json' },
         { method: 'DELETE', path: '/cart/items/:id',  file: 'cart-delete.json' },
         { method: 'DELETE', path: '/cart',            file: 'cart-clear.json' },
-        { method: 'GET',    path: '/products',        file: 'products.json' }
+
+        { method: 'GET',    path: '/products',        file: 'products.json' },
+
+        { method: 'POST',   path: '/checkout',        file: 'checkout-success.json' },
+
+        { method: 'GET',    path: '/user/profile',    file: 'user-profile.json' },
+
+        { method: 'GET',    path: '/orders',          file: 'orders.json' },
+        { method: 'GET',    path: '/orders/:id',      file: 'order-details.json' }
       ];
     }
 

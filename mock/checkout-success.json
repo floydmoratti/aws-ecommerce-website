@@ -1,0 +1,14 @@
+{
+  "success": true,
+  "orderId": "ORD-20260116-ABC123",
+  "status": "PAID",
+  "message": "Order placed successfully",
+  "paymentRef": "PAY-MOCK-456789",
+  "cart": {
+    "userId": "user-123",
+    "items": [],
+    "itemCount": 0,
+    "subtotal": 0,
+    "totalWeight": 0
+  }
+}
