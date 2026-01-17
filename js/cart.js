@@ -11,6 +11,13 @@ class CartManager {
       : null;
   }
 
+  isAuthenticated() {
+    if (this.config?.DEV_MOCK_AUTH === true) {
+      return true;
+    }
+    return !!sessionStorage.getItem('id_token');
+  }
+
 
   // ----------------------
   // API Fetch Function
@@ -65,7 +72,7 @@ class CartManager {
 
   async getCart() {
     try {
-      const response = await this.apiFetch('GET', '/cart');
+      const response = await this.apiFetch('GET', this.isAuthenticated() ? '/cart/auth' : '/cart');
 
       if (!response.ok) throw new Error('Failed to fetch cart');
 
@@ -96,7 +103,7 @@ class CartManager {
     button.disabled = true;
     button.innerHTML = '<i class="bi bi-hourglass-split me-1"></i> Adding...';
 
-    const response = await this.apiFetch('POST', '/cart/items', {
+    const response = await this.apiFetch('POST', this.isAuthenticated() ? `/cart/items/${productId}/auth` : `/cart/items/${productId}`, {
         body: JSON.stringify({ productId, weightGrams })
       });
 
@@ -303,7 +310,12 @@ async function updateButtons() {
   }
 }
 
-
+function isAuthenticated() {
+  if (window.CONFIG?.DEV_MOCK_AUTH === true) {
+    return true;
+  }
+  return !!sessionStorage.getItem("id_token");
+}
 
 // Load cart on page load
 async function initializeCart() {

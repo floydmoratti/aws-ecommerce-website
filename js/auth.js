@@ -7,8 +7,6 @@
  * - Dynamically updates navbar UI
  */
 
-const DEV_MOCK_AUTH = false; // <-- set to true for local testing only
-
 
 (function () {
   "use strict";
@@ -36,7 +34,9 @@ const DEV_MOCK_AUTH = false; // <-- set to true for local testing only
   // Auth State
   // ---------------------------------------------------------------------------
   function isAuthenticated() {
-    if (DEV_MOCK_AUTH) return true;
+    if (window.API_CONFIG?.DEV_MOCK_AUTH === true) {
+      return true;
+    }
     return !!sessionStorage.getItem("id_token");
   }
 

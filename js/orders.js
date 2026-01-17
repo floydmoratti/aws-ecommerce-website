@@ -15,6 +15,13 @@ class OrdersManager {
       : null;
   }
 
+  isAuthenticated() {
+    if (this.config?.DEV_MOCK_AUTH === true) {
+      return true;
+    }
+    return !!sessionStorage.getItem('id_token');
+  }
+
   // ----------------------
   // API Fetch Function
   // ----------------------
@@ -87,12 +94,6 @@ class OrdersManager {
   // Authentication Check
   // ----------------------
 
-  isAuthenticated() {
-    const DEV_MOCK_AUTH = window.DEV_MOCK_AUTH || false;
-    if (DEV_MOCK_AUTH) return true;
-    return !!sessionStorage.getItem('id_token');
-  }
-
   showAuthRequired() {
     document.getElementById('loadingState').style.display = 'none';
     const authRequired = document.getElementById('authRequired');
@@ -141,7 +142,7 @@ class OrdersManager {
     try {
       this.showLoading();
 
-      const response = await this.apiFetch('GET', '/orders');
+      const response = await this.apiFetch('GET', '/orders/auth');
       
       if (!response.ok) throw new Error('Failed to fetch orders');
 
@@ -529,7 +530,7 @@ class OrdersManager {
       let successCount = 0;
       for (const [productId, item] of items) {
         try {
-          const response = await this.apiFetch('POST', '/cart/items', {
+          const response = await this.apiFetch('POST', this.isAuthenticated() ? `/cart/items/${productId}/auth` : `/cart/items/${productId}`, {
             body: JSON.stringify({
               productId: productId,
               weightGrams: item.quantity
@@ -577,7 +578,7 @@ class OrdersManager {
 
   async updateCartBadge() {
     try {
-      const response = await this.apiFetch('GET', '/cart');
+      const response = await this.apiFetch('GET', this.isAuthenticated() ? '/cart/auth' : '/cart');
       if (response.ok) {
         const data = await response.json();
         const badge = document.getElementById('cartBadge');
@@ -676,6 +677,13 @@ class OrdersManager {
       setTimeout(() => notification.remove(), 300);
     }, 3000);
   }
+}
+
+function isAuthenticated() {
+  if (window.CONFIG?.DEV_MOCK_AUTH === true) {
+    return true;
+  }
+  return !!sessionStorage.getItem("id_token");
 }
 
 // Initialize orders manager

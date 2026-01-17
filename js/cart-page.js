@@ -12,6 +12,13 @@ class CartPageManager {
       : null;
   }
 
+  isAuthenticated() {
+    if (this.config?.DEV_MOCK_AUTH === true) {
+      return true;
+    }
+    return !!sessionStorage.getItem('id_token');
+  }
+
   // ----------------------
   // API Fetch Function
   // ----------------------
@@ -115,7 +122,7 @@ class CartPageManager {
     try {
       this.showLoading();
 
-      const response = await this.apiFetch('GET', '/cart');
+      const response = await this.apiFetch('GET', this.isAuthenticated() ? '/cart/auth' : '/cart');
 
       if (!response.ok) throw new Error('Failed to fetch cart');
 
@@ -273,7 +280,7 @@ class CartPageManager {
       confirmBtn.disabled = true;
       confirmBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Updating...';
 
-      const response = await this.apiFetch('PUT', `/cart/items/${productId}`, {
+      const response = await this.apiFetch('PUT', this.isAuthenticated() ? `/cart/items/${productId}/auth` : `/cart/items/${productId}`, {
         body: JSON.stringify({
           productId: productId,
           weightGrams: newWeight
@@ -317,7 +324,7 @@ class CartPageManager {
     }
 
     try {
-      const response = await this.apiFetch('DELETE', `/cart/items/${productId}`);
+      const response = await this.apiFetch('DELETE', this.isAuthenticated() ? `/cart/items/${productId}/auth` : `/cart/items/${productId}`);
 
       if (!response.ok) throw new Error('Failed to remove item');
 
@@ -348,7 +355,7 @@ class CartPageManager {
 
   async clearCart() {
     try {
-      const response = await this.apiFetch('DELETE', '/cart');
+      const response = await this.apiFetch('DELETE', this.isAuthenticated() ? '/cart/auth' : '/cart');
 
       if (!response.ok) throw new Error('Failed to clear cart');
 
@@ -457,6 +464,14 @@ class CartPageManager {
 
 
 const cartPageManager = new CartPageManager();
+
+
+function isAuthenticated() {
+  if (window.CONFIG?.DEV_MOCK_AUTH === true) {
+    return true;
+  }
+  return !!sessionStorage.getItem("id_token");
+}
 
 
 document.addEventListener('DOMContentLoaded', () => {

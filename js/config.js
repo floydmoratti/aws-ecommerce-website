@@ -29,18 +29,13 @@ window.APP_CONFIG = {
 })();
 
 
-// Mock Authentication
-const DEV_MOCK_AUTH = {
-  DEV_MOCK_AUTH: true,
-};
-
-
 // API Configuration
 const API_CONFIG = {
   USE_MOCK_API: true,
   REAL_API_BASE: '/api',
-  MOCK_API_BASE: '/mock'
+  MOCK_API_BASE: '/mock',
+  DEV_MOCK_AUTH: true
 };
 
-window.DEV_MOCK_AUTH = DEV_MOCK_AUTH;
+
 window.API_CONFIG = API_CONFIG;

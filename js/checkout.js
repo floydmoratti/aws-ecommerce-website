@@ -21,6 +21,13 @@ class CheckoutManager {
     this.TAX_RATE = 0.08; // 8%
   }
 
+  isAuthenticated() {
+    if (this.config?.DEV_MOCK_AUTH === true) {
+      return true;
+    }
+    return !!sessionStorage.getItem('id_token');
+  }
+
   // ----------------------
   // API Fetch Function
   // ----------------------
@@ -96,14 +103,6 @@ class CheckoutManager {
   // Authentication Check
   // ----------------------
 
-  isAuthenticated() {
-    // Check for dev mock auth flag
-    const DEV_MOCK_AUTH = window.DEV_MOCK_AUTH || false;
-    if (DEV_MOCK_AUTH) return true;
-
-    return !!sessionStorage.getItem('id_token');
-  }
-
   showAuthRequired() {
     document.getElementById('loadingState').style.display = 'none';
     const authRequired = document.getElementById('authRequired');
@@ -128,7 +127,9 @@ class CheckoutManager {
 
   async loadCart() {
     try {
-      const response = await this.apiFetch('GET', '/cart');
+
+      const response = await this.apiFetch('GET', this.isAuthenticated() ? '/cart/auth' : '/cart');
+
       if (!response.ok) throw new Error('Failed to fetch cart');
 
       const data = await response.json();
@@ -156,7 +157,7 @@ class CheckoutManager {
     try {
       // In production, this would call Cognito GetUser API
       // For mock mode, we'll use a mock endpoint
-      const response = await this.apiFetch('GET', '/user/profile');
+      const response = await this.apiFetch('GET', '/user/profile/auth');
       
       if (response.ok) {
         const data = await response.json();
@@ -474,7 +475,7 @@ class CheckoutManager {
       };
 
       // Submit order
-      const response = await this.apiFetch('POST', '/checkout', {
+      const response = await this.apiFetch('POST', '/checkout/auth', {
         body: JSON.stringify(orderData)
       });
 
@@ -570,6 +571,13 @@ class CheckoutManager {
       </div>
     `;
   }
+}
+
+function isAuthenticated() {
+  if (window.API_CONFIG?.DEV_MOCK_AUTH === true) {
+    return true;
+  }
+  return !!sessionStorage.getItem('id_token');
 }
 
 // Initialize checkout manager
