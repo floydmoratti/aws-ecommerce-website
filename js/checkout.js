@@ -5,8 +5,8 @@ class CheckoutManager {
     this.cart = null;
     this.currentStep = 1;
     this.formData = {
-      shipping: {},
-      payment: {}
+      shippingAddress: {},
+      paymentInfo: {}
     };
     this.userProfile = null;
     this.successModal = null;
@@ -16,9 +16,12 @@ class CheckoutManager {
       ? new window.MockRouter(this.config.MOCK_API_BASE)
       : null;
 
-    // Shipping cost and tax rate
-    this.SHIPPING_COST = 2.99;
-    this.TAX_RATE = 0.08; // 8%
+    // Backend-authoritative pricing (null until backend provides it)
+    this.backendPricing = null;
+
+    // Frontend fallback ONLY
+    this.DEFAULT_SHIPPING = 2.99;
+    this.DEFAULT_TAX_RATE = 0.08;
   }
 
   isAuthenticated() {
@@ -71,6 +74,31 @@ class CheckoutManager {
       body: options.body
     });
   }
+
+
+  // ----------------------
+  // Calculate Pricing
+  // ----------------------
+
+  getPricing() {
+  // Backend overrides frontend
+  if (this.backendPricing) {
+    return this.backendPricing;
+  }
+
+  // Fallback estimate
+  const subtotal = this.cart?.subtotal || 0;
+  const shipping = this.DEFAULT_SHIPPING;
+  const tax = subtotal * this.DEFAULT_TAX_RATE;
+
+  return {
+    subtotal,
+    shipping,
+    tax,
+    total: subtotal + shipping + tax
+  };
+  }
+
 
   // ----------------------
   // Initialize
@@ -148,6 +176,7 @@ class CheckoutManager {
       this.showError('Failed to load cart');
     }
   }
+
 
   // ----------------------
   // Load User Profile (from Cognito)
@@ -325,8 +354,8 @@ class CheckoutManager {
       return;
     }
 
-    // Collect shipping data
-    this.formData.shipping = {
+    // Collect shipping address data
+    this.formData.shippingAddress = {
       firstName: document.getElementById('firstName').value.trim(),
       lastName: document.getElementById('lastName').value.trim(),
       email: document.getElementById('email').value.trim(),
@@ -340,7 +369,7 @@ class CheckoutManager {
     // Auto-fill card name with full name
     const cardName = document.getElementById('cardName');
     if (cardName) {
-      cardName.value = `${this.formData.shipping.firstName} ${this.formData.shipping.lastName}`;
+      cardName.value = `${this.formData.shippingAddress.firstName} ${this.formData.shippingAddress.lastName}`;
     }
 
     this.goToStep(2);
@@ -372,7 +401,7 @@ class CheckoutManager {
     }
 
     // Collect payment data (masked)
-    this.formData.payment = {
+    this.formData.paymentInfo = {
       cardName: document.getElementById('cardName').value.trim(),
       cardNumber: cardNumber,
       cardExpiry: expiry,
@@ -407,11 +436,11 @@ class CheckoutManager {
     // Shipping info
     const shippingHtml = `
       <div>
-        <strong>${this.formData.shipping.firstName} ${this.formData.shipping.lastName}</strong><br>
-        ${this.formData.shipping.address}<br>
-        ${this.formData.shipping.city}, ${this.formData.shipping.state} ${this.formData.shipping.zip}<br>
-        <strong>Email:</strong> ${this.formData.shipping.email}<br>
-        <strong>Phone:</strong> ${this.formData.shipping.phone}
+        <strong>${this.formData.shippingAddress.firstName} ${this.formData.shippingAddress.lastName}</strong><br>
+        ${this.formData.shippingAddress.address}<br>
+        ${this.formData.shippingAddress.city}, ${this.formData.shippingAddress.state} ${this.formData.shippingAddress.zip}<br>
+        <strong>Email:</strong> ${this.formData.shippingAddress.email}<br>
+        <strong>Phone:</strong> ${this.formData.shippingAddress.phone}
       </div>
     `;
     document.getElementById('reviewShipping').innerHTML = shippingHtml;
@@ -420,8 +449,8 @@ class CheckoutManager {
     const paymentHtml = `
       <div>
         <i class="bi bi-credit-card me-2"></i>
-        <strong>Card ending in ${this.formData.payment.maskedCard}</strong><br>
-        Expires: ${this.formData.payment.cardExpiry}
+        <strong>Card ending in ${this.formData.paymentInfo.maskedCard}</strong><br>
+        Expires: ${this.formData.paymentInfo.cardExpiry}
       </div>
     `;
     document.getElementById('reviewPayment').innerHTML = paymentHtml;
@@ -445,9 +474,7 @@ class CheckoutManager {
 
     try {
       // Calculate totals
-      const subtotal = this.cart.subtotal;
-      const tax = subtotal * this.TAX_RATE;
-      const total = subtotal + this.SHIPPING_COST + tax;
+      const pricing = this.getPricing();
 
       // Prepare order data
       const orderData = {
@@ -456,22 +483,15 @@ class CheckoutManager {
           productName: item.productName,
           weightGrams: item.weightGrams,
           pricePerUnit: item.pricePerUnit,
-          quantity: item.weightGrams, // Store weight as quantity
           totalPrice: item.totalPrice
         })),
-        shipping: this.formData.shipping,
-        payment: {
-          cardName: this.formData.payment.cardName,
-          cardLast4: this.formData.payment.cardNumber.slice(-4),
-          cardExpiry: this.formData.payment.cardExpiry
-          // Never send full card number or CVV to backend in production
+        shippingAddress: this.formData.shippingAddress,
+        paymentInfo: {
+          cardName: this.formData.paymentInfo.cardName,
+          cardLast4: this.formData.paymentInfo.cardNumber.slice(-4),
+          cardExpiry: this.formData.paymentInfo.cardExpiry
         },
-        pricing: {
-          subtotal: subtotal,
-          shipping: this.SHIPPING_COST,
-          tax: tax,
-          total: total
-        }
+        pricing
       };
 
       // Submit order
@@ -479,12 +499,19 @@ class CheckoutManager {
         body: JSON.stringify(orderData)
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Payment failed');
+      const data = await response.json();
+        
+      if (!response.ok && response.status === 409) {
+        this.backendPricing = data.pricing;
+        this.cart = data.cart || this.cart;
+        this.renderOrderSummary();
+        alert('Pricing changed. Please review and confirm.');
+        btn.disabled = false;
+        btn.innerHTML = 'Place Order';
+        return;
       }
 
-      const result = await response.json();
+      if (data.pricing) this.backendPricing = data.pricing;
 
       // Show success modal
       document.getElementById('orderIdDisplay').textContent = result.orderId;
@@ -533,14 +560,12 @@ class CheckoutManager {
     });
 
     // Calculate totals
-    const subtotal = this.cart.subtotal;
-    const tax = subtotal * this.TAX_RATE;
-    const total = subtotal + this.SHIPPING_COST + tax;
+    const pricing = this.getPricing();
 
-    document.getElementById('orderSubtotal').textContent = `$${subtotal.toFixed(2)}`;
-    document.getElementById('orderShipping').textContent = `$${this.SHIPPING_COST.toFixed(2)}`;
-    document.getElementById('orderTax').textContent = `$${tax.toFixed(2)}`;
-    document.getElementById('orderTotal').textContent = `$${total.toFixed(2)}`;
+    document.getElementById('orderSubtotal').textContent = `$${pricing.subtotal.toFixed(2)}`;
+    document.getElementById('orderShipping').textContent = `$${pricing.shipping.toFixed(2)}`;
+    document.getElementById('orderTax').textContent = `$${pricing.tax.toFixed(2)}`;
+    document.getElementById('orderTotal').textContent = `$${pricing.total.toFixed(2)}`;
 
     // Update cart badge
     const badge = document.getElementById('cartBadge');
@@ -548,6 +573,42 @@ class CheckoutManager {
       badge.textContent = this.cart.itemCount || 0;
     }
   }
+
+
+  // ----------------------
+  // Backend Pricing Mismatch
+  // ----------------------
+
+  handlePricingMismatch(data) {
+  // Update cart if backend sent it
+  if (data.cart) {
+    this.cart = data.cart;
+  }
+
+  // Override pricing constants with backend values
+  this.backendPricing = data.pricing;
+
+  // Re-render totals using backend numbers
+  this.renderOrderSummaryFromBackend();
+
+  alert('Pricing has changed. Please review updated totals and place your order again.');
+
+  // Re-enable button
+  const btn = document.getElementById('placeOrderBtn');
+  btn.disabled = false;
+  btn.innerHTML = '<i class="bi bi-lock-fill me-2"></i>Place Order';
+  }
+
+
+  renderOrderSummaryFromBackend() {
+  const pricing = this.backendPricing;
+
+  document.getElementById('orderSubtotal').textContent = `$${pricing.subtotal.toFixed(2)}`;
+  document.getElementById('orderShipping').textContent = `$${pricing.shipping.toFixed(2)}`;
+  document.getElementById('orderTax').textContent = `$${pricing.tax.toFixed(2)}`;
+  document.getElementById('orderTotal').textContent = `$${pricing.total.toFixed(2)}`;
+  }
+
 
   // ----------------------
   // UI Helpers

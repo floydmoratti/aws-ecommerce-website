@@ -322,9 +322,9 @@ class OrdersManager {
         const itemDiv = document.createElement('div');
         itemDiv.className = 'order-item';
         
-        const weightDisplay = item.quantity >= 1000 
-          ? `${(item.quantity / 1000).toFixed(1)}kg`
-          : `${item.quantity}g`;
+        const weightDisplay = item.weightGrams >= 1000 
+          ? `${(item.weightGrams / 1000).toFixed(1)}kg`
+          : `${item.weightGrams}g`;
 
         itemDiv.innerHTML = `
           <div>
@@ -366,9 +366,9 @@ class OrdersManager {
 
     let itemsHtml = '';
     Object.entries(order.items || {}).forEach(([productId, item]) => {
-      const weightDisplay = item.quantity >= 1000 
-        ? `${(item.quantity / 1000).toFixed(1)}kg`
-        : `${item.quantity}g`;
+      const weightDisplay = item.weightGrams >= 1000 
+        ? `${(item.weightGrams / 1000).toFixed(1)}kg`
+        : `${item.weightGrams}g`;
 
       itemsHtml += `
         <div class="order-item">
@@ -533,7 +533,7 @@ class OrdersManager {
           const response = await this.apiFetch('POST', this.isAuthenticated() ? `/cart/items/${productId}/auth` : `/cart/items/${productId}`, {
             body: JSON.stringify({
               productId: productId,
-              weightGrams: item.quantity
+              weightGrams: item.weightGrams
             })
           });
 

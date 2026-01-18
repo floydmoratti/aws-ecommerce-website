@@ -7,19 +7,19 @@
       "items": {
         "PROD001": {
           "productName": "Rainbow Gummy Bears",
-          "quantity": 500,
+          "weightGrams": 500,
           "pricePerUnit": 3.99,
           "totalPrice": 19.95
         },
         "PROD002": {
           "productName": "Sour Watermelon Slices",
-          "quantity": 200,
+          "weightGrams": 200,
           "pricePerUnit": 4.49,
           "totalPrice": 8.98
         },
         "PROD003": {
           "productName": "Chocolate Truffles",
-          "quantity": 100,
+          "weightGrams": 100,
           "pricePerUnit": 8.99,
           "totalPrice": 8.99
         }
@@ -54,13 +54,13 @@
       "items": {
         "PROD004": {
           "productName": "Lollipop Assortment",
-          "quantity": 1000,
+          "weightGrams": 1000,
           "pricePerUnit": 2.99,
           "totalPrice": 29.90
         },
         "PROD001": {
           "productName": "Rainbow Gummy Bears",
-          "quantity": 200,
+          "weightGrams": 200,
           "pricePerUnit": 3.99,
           "totalPrice": 7.98
         }
@@ -95,7 +95,7 @@
       "items": {
         "PROD005": {
           "productName": "Peppermint Patties",
-          "quantity": 500,
+          "weightGrams": 500,
           "pricePerUnit": 5.49,
           "totalPrice": 27.45
         }
@@ -130,13 +130,13 @@
       "items": {
         "PROD006": {
           "productName": "Cotton Candy",
-          "quantity": 200,
+          "weightGrams": 200,
           "pricePerUnit": 6.99,
           "totalPrice": 13.98
         },
         "PROD007": {
           "productName": "Jelly Beans Mix",
-          "quantity": 500,
+          "weightGrams": 500,
           "pricePerUnit": 3.49,
           "totalPrice": 17.45
         }

@@ -291,7 +291,7 @@ async function updateButtons() {
         return;
       }
 
-      if (productData.quantity === 0) {
+      if (productData.availableGrams === 0) {
         if (cartButton) {
           cartButton.textContent = 'Sold Out';
           cartButton.disabled = true;
@@ -310,12 +310,6 @@ async function updateButtons() {
   }
 }
 
-function isAuthenticated() {
-  if (window.CONFIG?.DEV_MOCK_AUTH === true) {
-    return true;
-  }
-  return !!sessionStorage.getItem("id_token");
-}
 
 // Load cart on page load
 async function initializeCart() {
